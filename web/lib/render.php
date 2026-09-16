@@ -177,7 +177,9 @@ function oft_foot(): void
     Contains information from TED (Tenders Electronic Daily), &copy; European Union, reused under the terms permitted for TED data &middot;
     UK data from Find a Tender and Contracts Finder, licensed under the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a> &middot;
     World Bank procurement notices, &copy; The World Bank, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> &middot;
-    Canadian data from CanadaBuys under the Open Government Licence &ndash; Canada.
+    Canadian data from CanadaBuys under the Open Government Licence &ndash; Canada &middot;
+    French national notices from BOAMP under the Licence Ouverte (Etalab) &middot;
+    Colombian data from SECOP II via datos.gov.co.
     Out For Tender is not affiliated with any of these bodies.
   </p>
   <?php if (!empty($stats['last_import'])): ?>

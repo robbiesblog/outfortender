@@ -18,6 +18,7 @@ import time
 
 import http_client
 import record
+import unspsc
 
 NAME = "canadabuys"
 LICENCE = "Open Government Licence - Canada"
@@ -37,12 +38,11 @@ COLUMNS = {
     "url_en": "noticeURL-URLavis-eng",
     "description_en": "tenderDescription-descriptionAppelOffres-eng",
     "description_fr": "tenderDescription-descriptionAppelOffres-fra",
+    "unspsc": "unspsc",
 }
 
-# Canada classifies by its own procurement category and by UNSPSC, neither of
-# which maps onto CPV without a crosswalk we do not have yet. Construction is
-# unambiguous; everything else stays uncategorised until Phase 3 adds a proper
-# UNSPSC-to-CPV mapping, because a wrong category is worse than none.
+# Canada's own procurement category is coarse but unambiguous for construction.
+# Everything else is classified by UNSPSC, which unspsc.py bridges to CPV.
 CATEGORY_TO_CPV_DIVISION = {"*CNST": "45", "CNST": "45"}
 
 
@@ -85,7 +85,8 @@ def to_record(row):
         return None
 
     titles = {code: text for code, text in (("en", title_en), ("fr", title_fr)) if text}
-    division = CATEGORY_TO_CPV_DIVISION.get((row.get(COLUMNS["category"]) or "").strip().upper())
+    division = (CATEGORY_TO_CPV_DIVISION.get((row.get(COLUMNS["category"]) or "").strip().upper())
+                or unspsc.to_cpv_division(row.get(COLUMNS["unspsc"])))
     _, category = record.category_of(division + "000000") if division else (None, None)
 
     closing = (row.get(COLUMNS["closing"]) or "").strip()

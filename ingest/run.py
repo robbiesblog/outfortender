@@ -18,7 +18,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import record  # noqa: E402
-from sources import canadabuys, contracts_finder, find_a_tender, ted, worldbank  # noqa: E402
+from sources import (boamp, canadabuys, contracts_finder, find_a_tender,  # noqa: E402
+                     secop, ted, worldbank)
 
 SOURCES = {
     "ted": ted,                          # EU, above threshold
@@ -26,6 +27,8 @@ SOURCES = {
     "cf": contracts_finder,              # UK, below threshold
     "worldbank": worldbank,              # bank-funded work worldwide
     "canadabuys": canadabuys,            # Canada federal and provincial
+    "boamp": boamp,                      # France, below EU threshold
+    "secop": secop,                      # Colombia, national platform
 }
 
 

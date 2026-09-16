@@ -39,8 +39,8 @@ function oft_guide(string $code): ?array
         'FR' => [
             'intro' => 'France combines a large central-government procurement programme with thousands of separately purchasing communes and departments.',
             'notes' => [
-                'French above-threshold notices are published to TED, which is our source here.',
-                'Below-threshold contracts appear on BOAMP and on buyers\' own profiles. We do not yet cover those, so smaller French contracts will be missing.',
+                'We hold both halves of the French market: above-threshold notices through TED, and national notices below the EU thresholds through BOAMP.',
+                'A large French contract is advertised in both places. We keep only the TED copy of those, so a contract appears once rather than twice under two references.',
                 'Notices are in French, and submissions are normally expected in French.',
             ],
         ],
@@ -58,6 +58,14 @@ function oft_guide(string $code): ?array
                 'Our Canadian listings come from CanadaBuys, which carries English and French versions of every notice. Where a notice has both, we hold both.',
                 'Canada classifies its tenders using its own categories and UNSPSC codes rather than the European CPV system we use for category pages, so most Canadian tenders here have no category yet.',
                 'Some notices are hosted on MERX rather than CanadaBuys; the link on each page goes wherever the official notice actually lives.',
+            ],
+        ],
+        'CO' => [
+            'intro' => 'Colombia publishes every stage of every public procurement process to a single national platform, which makes it one of the more transparent markets we cover.',
+            'notes' => [
+                'Our Colombian listings come from SECOP II, through the national open data portal.',
+                'We list only processes that are genuinely open for offers and carry a submission deadline. Most records on the platform are directly negotiated contracts, which are published for transparency rather than as opportunities to bid.',
+                'Notices are in Spanish, and values are in Colombian pesos.',
             ],
         ],
         'ES' => [
@@ -142,5 +150,7 @@ function oft_source_label(string $source): string
         'cf' => 'Contracts Finder, the UK below-threshold register',
         'worldbank' => 'World Bank procurement notices',
         'canadabuys' => 'CanadaBuys, the Canadian federal register',
+        'boamp' => 'BOAMP, the French national bulletin',
+        'secop' => 'SECOP II, Colombia\'s public procurement platform',
     ][$source] ?? $source;
 }

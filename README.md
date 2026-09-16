@@ -61,11 +61,24 @@ translated titles and descriptions today.
 | Contracts Finder | UK, below threshold | open API, OCDS | OGL v3.0 |
 | World Bank | bank-funded work, ~150 countries | open API | CC BY 4.0 |
 | CanadaBuys | Canada, federal + provincial | open CSV | OGL - Canada |
+| BOAMP | France, below EU threshold | open API | Licence Ouverte (Etalab) |
+| SECOP II | Colombia, national platform | open API (Socrata) | Datos Abiertos Colombia |
 
-Known gaps: World Bank and CanadaBuys publish no CPV code, so their tenders carry
-no category until a UNSPSC-to-CPV crosswalk lands in Phase 3. Brazil's PNCP is
-not built: their API returned "Erro na comunicacao com o banco de dados" (HTTP 500)
-on every attempt on 16 Sep 2026, so there was nothing to verify a reader against.
+Categories: Canada and Colombia classify with UNSPSC, which `ingest/unspsc.py`
+bridges to CPV divisions at segment level. The World Bank publishes no product
+classification at all, so most of its notices stay uncategorised - only civil
+works maps cleanly.
+
+Sources probed and NOT built, with the reason:
+
+| Source | Why not |
+|---|---|
+| SAM.gov (US) | needs a free API key registered to a person; ask Robbie |
+| Brazil PNCP | API returned HTTP 500 "Erro na comunicacao com o banco de dados" all day |
+| Ukraine Prozorro | the search API carries no deadline or CPV, and the detail API is one request per tender - thousands a day |
+| AusTender (AU) | requires an authentication token |
+| ADB, IDB | bot protection returns 403/526 to any automated client |
+| Ireland eTenders, NZ GETS | no machine-readable feed found, HTML only |
 
 More to follow in Phase 3. Every source must be open data with a licence we can honour;
 attribution lives in `web/lib/render.php`.
