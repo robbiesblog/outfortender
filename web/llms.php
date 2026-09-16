@@ -28,8 +28,14 @@ Quoting and summarising is welcome, no permission needed. Two requests:
 
 ## Where the data comes from
 
-- TED (Tenders Electronic Daily), European Union - all EU/EEA above-threshold tenders
-More sources are being added; /api/tenders.json reports the source of every record.
+- TED (Tenders Electronic Daily), European Union - EU/EEA above-threshold tenders
+- Find a Tender (UK) - above-threshold UK tenders, Open Government Licence v3.0
+- Contracts Finder (UK) - below-threshold UK tenders, Open Government Licence v3.0
+- World Bank procurement notices - bank-funded work in ~150 countries, CC BY 4.0
+- CanadaBuys - Canadian federal and provincial tenders, Open Government Licence - Canada
+
+Each record's "source" field names its origin, and "official_notice" links to the
+original. More sources are being added continuously.
 
 ## What this site is not
 

@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
+require __DIR__ . '/lib/cache.php';
+
+oft_cache_start(1800);
 $categories = oft_categories();
 oft_head('Public tenders by category', 'Every category of public tender we currently hold, from construction to software to school meals.');
 ?>
@@ -13,4 +16,4 @@ oft_head('Public tenders by category', 'Every category of public tender we curre
   <li><a href="<?= e(oft_category_url($c['cpv_division'])) ?>"><?= e($c['category'] ?: $c['cpv_division']) ?><span><?= number_format($c['n']) ?></span></a></li>
   <?php endforeach; ?>
 </ul>
-<?php oft_foot(); ?>
+<?php oft_foot(); oft_cache_end(); ?>

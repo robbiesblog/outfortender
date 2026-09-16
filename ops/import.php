@@ -142,11 +142,21 @@ $pdo->prepare(
     ':manifest' => $manifest,
 ]);
 
+// Cached pages are keyed by the last import time, so old ones are already
+// unreachable - this just stops them accumulating on disk.
+$swept = 0;
+foreach (glob(($home ?? getenv('HOME')) . '/cache/*/*') ?: [] as $stale) {
+    if (is_file($stale) && (time() - filemtime($stale)) > 86400) {
+        @unlink($stale);
+        $swept++;
+    }
+}
+
 $open = $pdo->query("SELECT COUNT(*) FROM tenders WHERE status = 'open'")->fetchColumn();
 $all  = $pdo->query('SELECT COUNT(*) FROM tenders')->fetchColumn();
 
 printf(
-    "imported %d file(s): +%d new, %d updated, %d unchanged, %d closed, %d skipped | %d open of %d total\n",
+    "imported %d file(s): +%d new, %d updated, %d unchanged, %d closed, %d skipped | %d open of %d total | %d stale pages swept\n",
     count($files), $totals['inserted'], $totals['updated'], $totals['unchanged'],
-    $closed, $totals['skipped'], $open, $all
+    $closed, $totals['skipped'], $open, $all, $swept
 );

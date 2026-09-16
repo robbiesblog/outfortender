@@ -40,6 +40,33 @@ CREATE INDEX IF NOT EXISTS ix_division       ON tenders (cpv_division, status, d
 CREATE INDEX IF NOT EXISTS ix_published      ON tenders (published_at DESC);
 CREATE INDEX IF NOT EXISTS ix_source         ON tenders (source, source_ref);
 
+-- Full-text search. SQLite's FTS5 is compiled into DreamHost's PHP, so search
+-- is a real index rather than a LIKE scan that would crawl at 100k rows.
+-- 'external content' keeps one copy of the data: the index points back at
+-- tenders rather than duplicating it.
+CREATE VIRTUAL TABLE IF NOT EXISTS tenders_fts USING fts5(
+    title, description, buyer_name, country_name, category,
+    content = 'tenders',
+    content_rowid = 'rowid',
+    tokenize = 'unicode61 remove_diacritics 2'
+);
+
+-- Keep the index in step with the table.
+CREATE TRIGGER IF NOT EXISTS tenders_ai AFTER INSERT ON tenders BEGIN
+    INSERT INTO tenders_fts (rowid, title, description, buyer_name, country_name, category)
+    VALUES (new.rowid, new.title, new.description, new.buyer_name, new.country_name, new.category);
+END;
+CREATE TRIGGER IF NOT EXISTS tenders_ad AFTER DELETE ON tenders BEGIN
+    INSERT INTO tenders_fts (tenders_fts, rowid, title, description, buyer_name, country_name, category)
+    VALUES ('delete', old.rowid, old.title, old.description, old.buyer_name, old.country_name, old.category);
+END;
+CREATE TRIGGER IF NOT EXISTS tenders_au AFTER UPDATE ON tenders BEGIN
+    INSERT INTO tenders_fts (tenders_fts, rowid, title, description, buyer_name, country_name, category)
+    VALUES ('delete', old.rowid, old.title, old.description, old.buyer_name, old.country_name, old.category);
+    INSERT INTO tenders_fts (rowid, title, description, buyer_name, country_name, category)
+    VALUES (new.rowid, new.title, new.description, new.buyer_name, new.country_name, new.category);
+END;
+
 -- Every import writes a row here. If the site ever looks stale, this table says
 -- when the last delta landed and what was in it.
 CREATE TABLE IF NOT EXISTS imports (

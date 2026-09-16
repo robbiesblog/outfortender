@@ -35,9 +35,18 @@ Heavy work happens on Actions. The server only imports a small delta and serves 
 
 ## Sources
 
-| Source | Covers | Access |
-|---|---|---|
-| TED | EU, above threshold | open API, no key |
+| Source | Covers | Access | Licence |
+|---|---|---|---|
+| TED | EU/EEA, above threshold | open API, no key | EU reuse terms |
+| Find a Tender | UK, above threshold | open API, OCDS | OGL v3.0 |
+| Contracts Finder | UK, below threshold | open API, OCDS | OGL v3.0 |
+| World Bank | bank-funded work, ~150 countries | open API | CC BY 4.0 |
+| CanadaBuys | Canada, federal + provincial | open CSV | OGL - Canada |
+
+Known gaps: World Bank and CanadaBuys publish no CPV code, so their tenders carry
+no category until a UNSPSC-to-CPV crosswalk lands in Phase 3. Brazil's PNCP is
+not built: their API returned "Erro na comunicacao com o banco de dados" (HTTP 500)
+on every attempt on 16 Sep 2026, so there was nothing to verify a reader against.
 
 More to follow in Phase 3. Every source must be open data with a licence we can honour;
 attribution lives in `web/lib/render.php`.

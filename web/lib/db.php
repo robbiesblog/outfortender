@@ -45,6 +45,38 @@ function oft_value(string $sql, array $params = [])
     return $statement->fetchColumn();
 }
 
+function oft_has_fts(): bool
+{
+    static $has = null;
+    if ($has === null) {
+        $has = (bool) oft_value(
+            "SELECT COUNT(*) FROM sqlite_master WHERE name = 'tenders_fts'"
+        );
+    }
+    return $has;
+}
+
+/**
+ * Turn what a person typed into an FTS5 query.
+ *
+ * People type words, not query syntax, and FTS5 throws a fatal error on stray
+ * quotes or operators. Every word is quoted and prefix-matched, so "road resurf"
+ * finds "road resurfacing" and nothing can be injected.
+ */
+function oft_fts_query(string $input): string
+{
+    $words = preg_split('/[^\p{L}\p{N}]+/u', $input, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $words = array_slice($words, 0, 8);
+    $terms = [];
+    foreach ($words as $word) {
+        if (mb_strlen($word) < 2) {
+            continue;
+        }
+        $terms[] = '"' . str_replace('"', '', $word) . '"*';
+    }
+    return $terms ? implode(' AND ', $terms) : '""';
+}
+
 /** Tenders list with optional filters. Returns [rows, total]. */
 function oft_tenders(array $filter = [], int $limit = 50, int $offset = 0): array
 {
@@ -60,8 +92,13 @@ function oft_tenders(array $filter = [], int $limit = 50, int $offset = 0): arra
         $params[':division'] = $filter['division'];
     }
     if (!empty($filter['q'])) {
-        $where[] = '(title LIKE :q OR buyer_name LIKE :q OR description LIKE :q)';
-        $params[':q'] = '%' . str_replace(['%', '_'], ['\%', '\_'], $filter['q']) . '%';
+        if (oft_has_fts()) {
+            $where[] = 'rowid IN (SELECT rowid FROM tenders_fts WHERE tenders_fts MATCH :q)';
+            $params[':q'] = oft_fts_query($filter['q']);
+        } else {
+            $where[] = '(title LIKE :q OR buyer_name LIKE :q OR description LIKE :q)';
+            $params[':q'] = '%' . str_replace(['%', '_'], ['\%', '\_'], $filter['q']) . '%';
+        }
     }
     if (!empty($filter['closing_within_days'])) {
         $where[] = 'deadline_at IS NOT NULL AND deadline_at <= :until';

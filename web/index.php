@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
+require __DIR__ . '/lib/cache.php';
+
+oft_cache_start(900);
 
 $stats = oft_stats();
 [$closing, ] = oft_tenders(['closing_within_days' => 14], 12);
@@ -60,4 +63,4 @@ oft_head(
     <p><a href="/categories">All categories &rarr;</a></p>
   </div>
 </section>
-<?php oft_foot(); ?>
+<?php oft_foot(); oft_cache_end(); ?>

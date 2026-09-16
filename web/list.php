@@ -2,6 +2,11 @@
 /** Shared listing page for country, category and search. */
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
+require __DIR__ . '/lib/cache.php';
+
+if (($_GET['mode'] ?? '') !== 'search') {
+    oft_cache_start(900);
+}
 
 $perPage = 25;
 $page = max(1, (int) ($_GET['page'] ?? 1));
@@ -73,4 +78,4 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
   <?php if (!$rows): ?><p class="empty">Nothing matches yet. Try a broader word, or <a href="/">browse everything open</a>.</p><?php endif; ?>
 </div>
 <?php oft_pager($page, $total, $perPage, $base); ?>
-<?php oft_foot(); ?>
+<?php oft_foot(); oft_cache_end(); ?>

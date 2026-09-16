@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
+require __DIR__ . '/lib/cache.php';
+
+oft_cache_start(1800);
 $countries = oft_countries();
 oft_head('Public tenders by country', 'Every country we currently hold open public tenders for.');
 ?>
@@ -13,4 +16,4 @@ oft_head('Public tenders by country', 'Every country we currently hold open publ
   <li><a href="<?= e(oft_country_url($c['country'])) ?>"><?= e($c['country_name'] ?: $c['country']) ?><span><?= number_format($c['n']) ?></span></a></li>
   <?php endforeach; ?>
 </ul>
-<?php oft_foot(); ?>
+<?php oft_foot(); oft_cache_end(); ?>

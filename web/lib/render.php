@@ -146,8 +146,11 @@ function oft_foot(): void
   <p class="lede">Out For Tender lists public tenders from official open-data sources worldwide. Free to read, updated hourly, no registration.</p>
   <p>Always check the official notice before bidding &mdash; every tender page links to it.</p>
   <p class="credits">
-    Contains information from TED (Tenders Electronic Daily), &copy; European Union, reused under the terms permitted for TED data.
-    UK data licensed under the Open Government Licence v3.0.
+    Contains information from TED (Tenders Electronic Daily), &copy; European Union, reused under the terms permitted for TED data &middot;
+    UK data from Find a Tender and Contracts Finder, licensed under the <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">Open Government Licence v3.0</a> &middot;
+    World Bank procurement notices, &copy; The World Bank, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> &middot;
+    Canadian data from CanadaBuys under the Open Government Licence &ndash; Canada.
+    Out For Tender is not affiliated with any of these bodies.
   </p>
   <?php if (!empty($stats['last_import'])): ?>
   <p class="credits">Last updated <?= e(date('j M Y H:i', strtotime($stats['last_import']))) ?> UTC.</p>

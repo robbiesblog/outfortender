@@ -1,6 +1,9 @@
 <?php
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
+require __DIR__ . '/lib/cache.php';
+
+oft_cache_start(3600);
 
 $slug = $_GET['id'] ?? '';
 $id = preg_replace('/^([a-z0-9]+)-/', '$1:', (string) $slug, 1);
@@ -11,6 +14,7 @@ if (!$t) {
     oft_head('Tender not found', 'This tender is not in our database.', ['noindex' => true]);
     echo '<section class="hero"><h1>Tender not found</h1><p class="lede">It may have been withdrawn by the buyer, or the address may be mistyped. <a href="/">Browse open tenders</a>.</p></section>';
     oft_foot();
+    oft_cache_end();
     exit;
 }
 
@@ -93,4 +97,4 @@ oft_head(
     <a href="/api/tender/<?= e(str_replace(':', '-', $t['id'])) ?>.json">JSON</a>
   </p>
 </article>
-<?php oft_foot(); ?>
+<?php oft_foot(); oft_cache_end(); ?>

@@ -18,9 +18,15 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import record  # noqa: E402
-from sources import ted  # noqa: E402
+from sources import canadabuys, contracts_finder, find_a_tender, ted, worldbank  # noqa: E402
 
-SOURCES = {"ted": ted}
+SOURCES = {
+    "ted": ted,                          # EU, above threshold
+    "fts": find_a_tender,                # UK, above threshold
+    "cf": contracts_finder,              # UK, below threshold
+    "worldbank": worldbank,              # bank-funded work worldwide
+    "canadabuys": canadabuys,            # Canada federal and provincial
+}
 
 
 def main():
