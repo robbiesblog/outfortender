@@ -27,6 +27,10 @@ oft_head(
     <strong><?= $stats['countries'] ?></strong> <?= e(mb_strtolower(t('Countries'))) ?>,
     <strong><?= $stats['categories'] ?></strong> <?= e(mb_strtolower(t('Categories'))) ?>.
   </p>
+  <p class="cta-row">
+    <a class="button" href="<?= e(oft_path('/alerts')) ?>"><?= e(t('Get free email alerts')) ?></a>
+    <span class="muted"><?= e(t('No account. One-click unsubscribe.')) ?></span>
+  </p>
 </section>
 
 <?php if ($closing): ?>

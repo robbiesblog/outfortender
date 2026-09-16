@@ -163,3 +163,25 @@ pre {
 .langs-nav a:hover { background: var(--accent-soft); color: var(--accent); }
 .langs-nav span[aria-current] { background: var(--accent); color: #fff; }
 @media (prefers-color-scheme: dark) { .langs-nav span[aria-current] { color: #10201e; } }
+
+/* alerts */
+.alert-form { display: grid; gap: 14px; max-width: 520px; margin: 24px 0 40px; }
+.alert-form .field { display: grid; gap: 5px; }
+.alert-form label { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.alert-form input, .alert-form select {
+  padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px;
+  background: var(--surface); color: var(--ink); font-size: 15px; width: 100%;
+}
+.alert-form button {
+  justify-self: start; padding: 11px 20px; border: 0; border-radius: 6px;
+  background: var(--accent); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+@media (prefers-color-scheme: dark) { .alert-form button { color: #10201e; } }
+.alert-form .hp { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+.notice.good { background: var(--accent-soft); color: var(--accent); }
+
+/* prose pages */
+.prose h2 { font-size: 19px; margin-top: 32px; }
+.prose ul.links { list-style: none; padding: 0; display: grid; gap: 8px; }
+.prose ul.links li { padding-left: 14px; border-left: 2px solid var(--rule); }
+.prose .lede { margin-bottom: 20px; }

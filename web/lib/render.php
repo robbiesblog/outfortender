@@ -189,7 +189,13 @@ function oft_foot(): void
     <a href="<?= e(oft_path('/')) ?>"><?= e(t('Home')) ?></a> &middot;
     <a href="<?= e(oft_path('/countries')) ?>"><?= e(t('Countries')) ?></a> &middot;
     <a href="<?= e(oft_path('/categories')) ?>"><?= e(t('Categories')) ?></a> &middot;
-    <a href="/api">API</a>
+    <a href="<?= e(oft_path('/alerts')) ?>"><?= e(t('Free alerts')) ?></a> &middot;
+    <a href="/resources">Resources</a> &middot;
+    <a href="/api">API</a> &middot;
+    <a href="/about">About</a> &middot;
+    <a href="/privacy"><?= e(t('Privacy')) ?></a> &middot;
+    <a href="/terms">Terms</a> &middot;
+    <a href="/contact">Contact</a>
   </nav>
 </footer>
 </body>

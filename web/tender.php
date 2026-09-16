@@ -57,7 +57,13 @@ oft_head(
   <h1<?= $titleLang !== oft_lang() ? ' lang="' . e($titleLang) . '"' : '' ?>><?= e($title) ?></h1>
 
   <?php if ($t['status'] !== 'open'): ?>
-  <p class="notice closed">This tender has closed. It stays online as a record of what was advertised.</p>
+  <p class="notice closed">
+    <?= e(t('This tender has closed. It stays online as a record of what was advertised.')) ?>
+    <?php if ($t['country'] === 'GB'): ?>
+    <a href="https://contractawarded.com" rel="noopener">ContractAwarded.com</a>
+    <?= e(t('publishes UK contract awards daily, which is where the result of this one would appear.')) ?>
+    <?php endif; ?>
+  </p>
   <?php endif; ?>
 
   <dl class="facts">

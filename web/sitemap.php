@@ -44,7 +44,8 @@ if ($part === 'lang') {
            . '<changefreq>hourly</changefreq></url>' . "\n";
     }
 } elseif ($part === 'pages') {
-    $urls = ['/', '/countries', '/categories', '/api'];
+    $urls = ['/', '/countries', '/categories', '/api', '/alerts', '/resources',
+             '/about', '/privacy', '/terms', '/contact'];
     foreach (oft_countries() as $c) {
         $urls[] = oft_country_url($c['country']);
     }

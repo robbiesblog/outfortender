@@ -33,6 +33,22 @@ Heavy work happens on Actions. The server only imports a small delta and serves 
     php ops/import.php --db /tmp/oft.sqlite --delta /tmp/delta.ndjson
     php -S localhost:8080 -t web/            # with OFT_DB=/tmp/oft.sqlite
 
+## Alerts
+
+Free email alerts at `/alerts`: filter by country, category and keywords.
+
+Confirmed opt-in - a row is worthless until the person opens the link, so an
+address can never be signed up by somebody else. One-click unsubscribe, no
+account, and we store a hash of the sign-up IP rather than the address itself.
+
+`ops/alerts.php` builds the mail. **It does not send by default.** It writes each
+message to `~/ops/log/outbox/` for inspection and marks nothing as sent, so the
+same run repeats safely. Sending needs `--send`, and should not be switched on
+until SPF and DKIM are configured for outfortender.com - a new domain that
+starts pushing bulk mail without them burns its reputation quickly.
+
+A daily cron runs it in dry-run mode at 07:25.
+
 ## Languages
 
 Published in English (at the root) plus German, French, Spanish, Italian, Polish,
