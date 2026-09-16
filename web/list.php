@@ -3,6 +3,7 @@
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
 require __DIR__ . '/lib/cache.php';
+require __DIR__ . '/lib/guides.php';
 
 if (($_GET['mode'] ?? '') !== 'search') {
     oft_cache_start(900);
@@ -71,6 +72,59 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
   <input type="search" name="q" value="<?= e($_GET['q'] ?? '') ?>" placeholder="Try: hospital equipment, road resurfacing, software" aria-label="Search tenders">
   <button type="submit">Search</button>
 </form>
+<?php endif; ?>
+
+<?php if ($mode === 'country'):
+    $guide = oft_guide($code);
+    $stats = oft_country_stats($code);
+?>
+<section class="guide">
+  <h2>How public tendering works in <?= e($name) ?></h2>
+  <?php if ($guide): ?>
+  <p class="lede"><?= e($guide['intro']) ?></p>
+  <ul>
+    <?php foreach ($guide['notes'] as $note): ?><li><?= e($note) ?></li><?php endforeach; ?>
+  </ul>
+  <?php else: ?>
+  <p class="lede">
+    Tenders for <?= e($name) ?> reach us through
+    <?php $labels = array_map(fn($s) => oft_source_label($s['source']), $stats['sources']); ?>
+    <?= e(implode(' and ', $labels)) ?>.
+    Each listing links to the official notice, which is where bidding happens and
+    which is always the authoritative version.
+  </p>
+  <?php endif; ?>
+
+  <dl class="figures">
+    <div><dt>Open now</dt><dd><?= number_format($stats['open']) ?></dd></div>
+    <div><dt>Closing this week</dt><dd><?= number_format($stats['closing_this_week']) ?></dd></div>
+    <?php if ($stats['median_lead_days'] !== null): ?>
+    <div><dt>Typical time to bid</dt><dd><?= (int) $stats['median_lead_days'] ?> days</dd></div>
+    <?php endif; ?>
+    <div><dt>With a published value</dt><dd><?= $stats['open'] ? round(100 * $stats['with_value'] / $stats['open']) : 0 ?>%</dd></div>
+  </dl>
+  <p class="muted">
+    Figures are counted from the <?= number_format($stats['open']) ?> open
+    <?= e($name) ?> tenders we hold right now, and change as notices are published and close.
+    "Typical time to bid" is the median gap between publication and deadline.
+  </p>
+
+  <?php if ($stats['categories']): ?>
+  <p><strong>Most common right now:</strong>
+    <?php $bits = [];
+      foreach ($stats['categories'] as $c) {
+          $bits[] = '<a href="' . e(oft_category_url($c['cpv_division'])) . '">' . e($c['category']) . '</a> (' . number_format($c['n']) . ')';
+      }
+      echo implode(', ', $bits); ?>
+  </p>
+  <?php endif; ?>
+  <?php if ($stats['buyers']): ?>
+  <p><strong>Buyers publishing most often:</strong>
+    <?= e(implode(', ', array_map(fn($b) => $b['buyer_name'], $stats['buyers']))) ?>.
+  </p>
+  <?php endif; ?>
+</section>
+<h2>Open tenders in <?= e($name) ?></h2>
 <?php endif; ?>
 
 <div class="list">

@@ -11,6 +11,23 @@ function e(?string $text): string
     return htmlspecialchars((string) $text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/**
+ * Stylesheet fingerprint.
+ *
+ * The server sends assets with a 30-day cache, so without this a returning
+ * visitor keeps the old stylesheet for a month after a design change. The
+ * file's modification time changes the URL, so a deploy is picked up at once.
+ */
+function oft_asset_version(): string
+{
+    static $version = null;
+    if ($version === null) {
+        $path = dirname(__DIR__) . '/assets/style.css';
+        $version = (string) (@filemtime($path) ?: 1);
+    }
+    return $version;
+}
+
 function oft_tender_url(array $t): string
 {
     return '/tender/' . str_replace(':', '-', $t['id']);
@@ -118,7 +135,7 @@ function oft_head(string $title, string $description, array $options = []): void
 <meta property="og:title" content="<?= e($title) ?>">
 <meta property="og:description" content="<?= e($description) ?>">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/style.css?v=<?= e(oft_asset_version()) ?>">
 <?php if (!empty($options['jsonld'])): ?>
 <script type="application/ld+json"><?= json_encode($options['jsonld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
 <?php endif; ?>

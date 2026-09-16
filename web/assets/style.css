@@ -143,3 +143,13 @@ pre {
 /* pager */
 .pager { display: flex; gap: 16px; align-items: center; margin: 24px 0; font-size: 15px; }
 .pager span { color: var(--ink-faint); }
+
+/* country guides */
+.guide { margin: 28px 0 8px; padding: 20px 22px; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; }
+.guide h2 { margin-top: 0; }
+.guide ul { margin: 0 0 4px; padding-left: 20px; max-width: 68ch; }
+.guide li { margin-bottom: 8px; }
+.figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2px; margin: 20px 0 10px; }
+.figures div { padding: 12px 14px; background: var(--paper); border: 1px solid var(--rule); }
+.figures dt { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); }
+.figures dd { margin: 4px 0 0; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
