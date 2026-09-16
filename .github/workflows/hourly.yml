@@ -31,23 +31,31 @@ jobs:
         run: |
           python3 ingest/run.py \
             --since-days "${{ github.event.inputs.since_days || 2 }}" \
-            --out "delta-$(date -u +%Y%m%dT%H%M%SZ).ndjson"
+            --out delta.ndjson
+          wc -l delta.ndjson
 
-      - name: Upload delta to DreamHost
+      - name: Send to DreamHost and import
         env:
           DEPLOY_KEY: ${{ secrets.DREAMHOST_KEY }}
           DEPLOY_HOST: ${{ secrets.DREAMHOST_HOST }}
           DEPLOY_USER: ${{ secrets.DREAMHOST_USER }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy
-          chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/actions_key
+          chmod 600 ~/.ssh/actions_key
           ssh-keyscan -p 22 "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          scp -i ~/.ssh/deploy -P 22 delta-*.ndjson "$DEPLOY_USER@$DEPLOY_HOST:incoming/"
-          ssh -i ~/.ssh/deploy -p 22 "$DEPLOY_USER@$DEPLOY_HOST" 'php ~/ops/import.php'
+          # This key has no shell: the server only accepts 'upload-delta',
+          # which stores stdin and runs the importer. See ops/actions-shell.sh.
+          ssh -i ~/.ssh/actions_key -o BatchMode=yes -p 22 \
+            "$DEPLOY_USER@$DEPLOY_HOST" upload-delta < delta.ndjson | tee import.log
 
       - name: Summary
         if: always()
         run: |
-          echo "### Ingest run" >> $GITHUB_STEP_SUMMARY
-          tail -n 1 delta-*.ndjson >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+          {
+            echo "### Ingest run"
+            echo '```'
+            tail -n 1 delta.ndjson 2>/dev/null || echo "no delta produced"
+            cat import.log 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
