@@ -1,0 +1,34 @@
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Never rewrite real files (assets, robots.txt)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+RewriteRule ^tender/([A-Za-z0-9._:-]+)/?$        tender.php?id=$1        [L,QSA]
+RewriteRule ^country/([A-Za-z]{2})/?$            list.php?mode=country&c=$1 [L,QSA]
+RewriteRule ^category/([0-9]{2})/?$              list.php?mode=category&d=$1 [L,QSA]
+RewriteRule ^search/?$                           list.php?mode=search    [L,QSA]
+RewriteRule ^countries/?$                        countries.php           [L,QSA]
+RewriteRule ^categories/?$                       categories.php          [L,QSA]
+RewriteRule ^api/?$                              api-docs.php            [L,QSA]
+RewriteRule ^api/tenders\.json$                  api.php                 [L,QSA]
+RewriteRule ^api/tender/([A-Za-z0-9._:-]+)\.json$ api.php?id=$1          [L,QSA]
+RewriteRule ^llms\.txt$                          llms.php                [L]
+RewriteRule ^sitemap\.xml$                       sitemap.php             [L]
+RewriteRule ^sitemap-pages\.xml$                 sitemap.php?part=pages  [L]
+RewriteRule ^sitemap-([a-z]{2})\.xml$            sitemap.php?part=$1     [L]
+</IfModule>
+
+# Keep the library out of the web
+<FilesMatch "^(db|render)\.php$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/json application/xml text/plain
+</IfModule>

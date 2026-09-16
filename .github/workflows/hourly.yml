@@ -1,0 +1,53 @@
+name: Hourly tender ingest
+
+on:
+  schedule:
+    - cron: '17 * * * *'      # 17 past the hour: away from the crowd on :00
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: 'How many days back to fetch'
+        default: '2'
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install --quiet requests
+
+      - name: Fetch and normalise
+        run: |
+          python3 ingest/run.py \
+            --since-days "${{ github.event.inputs.since_days || 2 }}" \
+            --out "delta-$(date -u +%Y%m%dT%H%M%SZ).ndjson"
+
+      - name: Upload delta to DreamHost
+        env:
+          DEPLOY_KEY: ${{ secrets.DREAMHOST_KEY }}
+          DEPLOY_HOST: ${{ secrets.DREAMHOST_HOST }}
+          DEPLOY_USER: ${{ secrets.DREAMHOST_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy
+          chmod 600 ~/.ssh/deploy
+          ssh-keyscan -p 22 "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          scp -i ~/.ssh/deploy -P 22 delta-*.ndjson "$DEPLOY_USER@$DEPLOY_HOST:incoming/"
+          ssh -i ~/.ssh/deploy -p 22 "$DEPLOY_USER@$DEPLOY_HOST" 'php ~/ops/import.php'
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Ingest run" >> $GITHUB_STEP_SUMMARY
+          tail -n 1 delta-*.ndjson >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
