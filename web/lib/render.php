@@ -3,6 +3,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/i18n.php';
+
 const OFT_SITE = 'Out For Tender';
 const OFT_BASE = 'https://outfortender.com';
 
@@ -28,48 +30,45 @@ function oft_asset_version(): string
     return $version;
 }
 
-function oft_tender_url(array $t): string
+function oft_tender_url(array $t, ?string $lang = null): string
 {
-    return '/tender/' . str_replace(':', '-', $t['id']);
+    return oft_path('/tender/' . str_replace(':', '-', $t['id']), $lang);
 }
 
-function oft_country_url(string $code): string
+function oft_country_url(string $code, ?string $lang = null): string
 {
-    return '/country/' . strtolower($code);
+    return oft_path('/country/' . strtolower($code), $lang);
 }
 
-function oft_category_url(string $division): string
+function oft_category_url(string $division, ?string $lang = null): string
 {
-    return '/category/' . $division;
+    return oft_path('/category/' . $division, $lang);
 }
 
 /** "in 6 days", "tomorrow", "today", "closed" - the thing a bidder actually wants to know. */
 function oft_deadline_label(?string $deadline): array
 {
     if (!$deadline) {
-        return ['No deadline given', 'none'];
+        return [t('No deadline given'), 'none'];
     }
     $time = strtotime($deadline);
     if ($time === false) {
-        return ['No deadline given', 'none'];
+        return [t('No deadline given'), 'none'];
     }
     $days = (int) floor(($time - time()) / 86400);
     if ($time < time()) {
-        return ['Closed', 'closed'];
+        return [t('Closed'), 'closed'];
     }
     if ($days === 0) {
-        return ['Closes today', 'urgent'];
+        return [t('Closes today'), 'urgent'];
     }
     if ($days === 1) {
-        return ['Closes tomorrow', 'urgent'];
-    }
-    if ($days <= 7) {
-        return ["Closes in $days days", 'urgent'];
+        return [t('Closes tomorrow'), 'urgent'];
     }
     if ($days <= 30) {
-        return ["Closes in $days days", 'soon'];
+        return [t('Closes in %d days', $days), $days <= 7 ? 'urgent' : 'soon'];
     }
-    return ['Closes ' . date('j M Y', $time), 'later'];
+    return [t('Closes %s', date('j M Y', $time)), 'later'];
 }
 
 /** Format an ISO datetime in the offset it arrived with - a Helsinki deadline
@@ -122,14 +121,19 @@ function oft_head(string $title, string $description, array $options = []): void
 {
     $canonical = $options['canonical'] ?? (OFT_BASE . strtok($_SERVER['REQUEST_URI'] ?? '/', '?'));
     $noindex = !empty($options['noindex']);
+    $bare = oft_bare_path();
     ?><!doctype html>
-<html lang="en">
+<html lang="<?= e(oft_lang()) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
 <meta name="description" content="<?= e($description) ?>">
 <link rel="canonical" href="<?= e($canonical) ?>">
+<?php foreach (array_keys(OFT_LANGS) as $code): ?>
+<link rel="alternate" hreflang="<?= e($code) ?>" href="<?= e(OFT_BASE . oft_path($bare, $code)) ?>">
+<?php endforeach; ?>
+<link rel="alternate" hreflang="x-default" href="<?= e(OFT_BASE . $bare) ?>">
 <?php if ($noindex): ?><meta name="robots" content="noindex,follow">
 <?php endif; ?>
 <meta property="og:title" content="<?= e($title) ?>">
@@ -143,11 +147,18 @@ function oft_head(string $title, string $description, array $options = []): void
 <body>
 <header class="site">
   <div class="bar">
-    <a class="brand" href="/">Out For Tender</a>
-    <form class="find" action="/search" method="get" role="search">
-      <input type="search" name="q" placeholder="Search tenders" value="<?= e($_GET['q'] ?? '') ?>" aria-label="Search tenders">
-      <button type="submit">Search</button>
+    <a class="brand" href="<?= e(oft_path('/')) ?>">Out For Tender</a>
+    <form class="find" action="<?= e(oft_path('/search')) ?>" method="get" role="search">
+      <input type="search" name="q" placeholder="<?= e(t('Search tenders')) ?>" value="<?= e($_GET['q'] ?? '') ?>" aria-label="<?= e(t('Search tenders')) ?>">
+      <button type="submit"><?= e(t('Search')) ?></button>
     </form>
+    <nav class="langs-nav" aria-label="<?= e(t('Language')) ?>">
+      <?php foreach (OFT_LANGS as $code => $label): ?>
+        <?php if ($code === oft_lang()): ?><span aria-current="true"><?= e(strtoupper($code)) ?></span>
+        <?php else: ?><a href="<?= e(oft_path($bare, $code)) ?>" hreflang="<?= e($code) ?>" title="<?= e($label) ?>"><?= e(strtoupper($code)) ?></a>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </nav>
   </div>
 </header>
 <main>
@@ -173,9 +184,9 @@ function oft_foot(): void
   <p class="credits">Last updated <?= e(date('j M Y H:i', strtotime($stats['last_import']))) ?> UTC.</p>
   <?php endif; ?>
   <nav class="footnav">
-    <a href="/">Home</a> &middot;
-    <a href="/countries">Countries</a> &middot;
-    <a href="/categories">Categories</a> &middot;
+    <a href="<?= e(oft_path('/')) ?>"><?= e(t('Home')) ?></a> &middot;
+    <a href="<?= e(oft_path('/countries')) ?>"><?= e(t('Countries')) ?></a> &middot;
+    <a href="<?= e(oft_path('/categories')) ?>"><?= e(t('Categories')) ?></a> &middot;
     <a href="/api">API</a>
   </nav>
 </footer>
@@ -188,13 +199,14 @@ function oft_foot(): void
 function oft_card(array $t): void
 {
     [$label, $state] = oft_deadline_label($t['deadline_at']);
+    [$title, $titleLang] = oft_title_for($t);
     $money = oft_money($t['value_amount'] !== null ? (float) $t['value_amount'] : null, $t['value_currency']);
     ?>
 <article class="tender">
-  <h3><a href="<?= e(oft_tender_url($t)) ?>"><?= e($t['title']) ?></a></h3>
+  <h3><a href="<?= e(oft_tender_url($t)) ?>" <?= $titleLang !== oft_lang() ? 'lang="' . e($titleLang) . '"' : '' ?>><?= e($title) ?></a></h3>
   <p class="meta">
-    <?php if ($t['country']): ?><a class="tag" href="<?= e(oft_country_url($t['country'])) ?>"><?= e($t['country_name'] ?: $t['country']) ?></a><?php endif; ?>
-    <?php if ($t['cpv_division'] && $t['category']): ?><a class="tag" href="<?= e(oft_category_url($t['cpv_division'])) ?>"><?= e($t['category']) ?></a><?php endif; ?>
+    <?php if ($t['country']): ?><a class="tag" href="<?= e(oft_country_url($t['country'])) ?>"><?= e(oft_country_name($t['country'], $t['country_name'])) ?></a><?php endif; ?>
+    <?php if ($t['cpv_division']): ?><a class="tag" href="<?= e(oft_category_url($t['cpv_division'])) ?>"><?= e(oft_category_name($t['cpv_division'], $t['category'])) ?></a><?php endif; ?>
     <?php if ($money): ?><span class="tag money"><?= e($money) ?></span><?php endif; ?>
     <span class="tag deadline <?= e($state) ?>"><?= e($label) ?></span>
   </p>

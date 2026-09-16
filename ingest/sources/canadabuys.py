@@ -16,8 +16,7 @@ import io
 import re
 import time
 
-import requests
-
+import http_client
 import record
 
 NAME = "canadabuys"
@@ -121,11 +120,8 @@ def to_record(row):
 
 
 def fetch(since_days=2, limit=None, log=print):
-    session = requests.Session()
-    session.headers["User-Agent"] = "OutForTender/0.1 (+https://outfortender.com)"
-
-    response = session.get(FEED, timeout=180)
-    response.raise_for_status()
+    session = http_client.session()
+    response = http_client.request(session, "GET", FEED, timeout=180, log=log)
     response.encoding = "utf-8-sig"
 
     cutoff = time.strftime("%Y-%m-%d", time.gmtime(time.time() - since_days * 86400))

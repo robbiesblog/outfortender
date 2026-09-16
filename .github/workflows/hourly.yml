@@ -28,11 +28,20 @@ jobs:
         run: pip install --quiet requests
 
       - name: Fetch and normalise
+        id: fetch
         run: |
+          set +e
           python3 ingest/run.py \
             --since-days "${{ github.event.inputs.since_days || 2 }}" \
             --out delta.ndjson
+          code=$?
+          # 2 means some sources failed but we still have tenders worth importing.
+          if [ "$code" = "2" ]; then
+            echo "partial=true" >> "$GITHUB_OUTPUT"
+            code=0
+          fi
           wc -l delta.ndjson
+          exit $code
 
       - name: Send to DreamHost and import
         env:
@@ -48,6 +57,12 @@ jobs:
           # which stores stdin and runs the importer. See ops/actions-shell.sh.
           ssh -i ~/.ssh/actions_key -o BatchMode=yes -p 22 \
             "$DEPLOY_USER@$DEPLOY_HOST" upload-delta < delta.ndjson | tee import.log
+
+      - name: Flag a partial run
+        if: steps.fetch.outputs.partial == 'true'
+        run: |
+          echo "::warning title=Partial ingest::At least one source failed. \
+          The delta was still imported; see the run log for which."
 
       - name: Summary
         if: always()

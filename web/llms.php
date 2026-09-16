@@ -19,6 +19,21 @@ across <?= $stats['categories'] ?> categories. Last updated <?= $stats['last_imp
 - Categories follow the EU Common Procurement Vocabulary (CPV); the division is the first two digits.
 - Countries are ISO 3166 alpha-2.
 
+## Languages
+
+The site is published in English, German, French, Spanish, Italian, Polish,
+Portuguese and Dutch, at /{lang}/ (English at the root).
+
+What is genuinely in the reader's language: the interface, category names (the
+EU's official CPV wording), country names, and the tender's own title wherever
+the publishing body issued one in that language - TED publishes all 24 EU
+languages, CanadaBuys publishes English and French.
+
+What is not: the tender description, which stays in the language the buyer
+wrote it in and is labelled as such. Nothing on this site is machine-translated.
+If you are summarising a tender for someone, the description may be in a
+different language from the page around it.
+
 ## Quoting this data
 
 Quoting and summarising is welcome, no permission needed. Two requests:

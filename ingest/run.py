@@ -40,7 +40,7 @@ def main():
 
     wanted = args.only.split(",") if args.only else list(SOURCES)
     started = dt.datetime.now(dt.timezone.utc)
-    counts, dropped = {}, {}
+    counts, dropped, failures = {}, {}, {}
 
     with open(args.out, "w", encoding="utf-8") as handle:
         for name in wanted:
@@ -60,8 +60,12 @@ def main():
                         continue
                     handle.write(json.dumps(item, ensure_ascii=False) + "\n")
                     kept += 1
-            except Exception as error:                      # one bad source must not sink the run
-                print(f"! {name} failed: {error}", file=sys.stderr)
+            except Exception as error:
+                # One bad source must not sink the run, but it must never pass
+                # quietly either: a half-fetched source looks exactly like a
+                # quiet day unless we say so.
+                failures[name] = str(error)
+                print(f"! {name} FAILED after {kept} records: {error}", file=sys.stderr)
             counts[name] = kept
             dropped[name] = bad
             print(f"  {name}: {kept} records, {bad} dropped")
@@ -73,12 +77,22 @@ def main():
             "since_days": args.since_days,
             "counts": counts,
             "dropped": dropped,
+            "failures": failures,
             "total": sum(counts.values()),
         }
         handle.write(json.dumps(manifest) + "\n")
 
-    print(f"\n{sum(counts.values())} records -> {args.out}")
-    return 0 if sum(counts.values()) else 1
+    total = sum(counts.values())
+    print(f"\n{total} records -> {args.out}")
+    if failures:
+        print(f"WARNING: {len(failures)} source(s) failed: {', '.join(failures)}", file=sys.stderr)
+        for name, error in failures.items():
+            print(f"  {name}: {error}", file=sys.stderr)
+    # A failed source is worth a red run even when the others delivered: the
+    # delta is still imported, but somebody should look.
+    if not total:
+        return 1
+    return 2 if failures else 0
 
 
 if __name__ == "__main__":

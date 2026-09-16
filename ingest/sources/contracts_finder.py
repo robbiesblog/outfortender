@@ -9,8 +9,7 @@ from __future__ import annotations
 
 import time
 
-import requests
-
+import http_client
 import record
 from . import ocds
 
@@ -63,8 +62,7 @@ def to_record(release):
 
 
 def fetch(since_days=2, limit=None, log=print):
-    session = requests.Session()
-    session.headers["User-Agent"] = "OutForTender/0.1 (+https://outfortender.com)"
+    session = http_client.session()
 
     since = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(time.time() - since_days * 86400))
     params = {"publishedFrom": since, "stages": "tender", "size": PAGE_SIZE}
@@ -72,9 +70,7 @@ def fetch(since_days=2, limit=None, log=print):
     seen = kept = 0
 
     for page in range(MAX_PAGES):
-        response = session.get(url, params=params if page == 0 else None, timeout=60)
-        response.raise_for_status()
-        data = response.json()
+        data = http_client.get_json(session, url, params=params if page == 0 else None, log=log)
         releases = data.get("releases") or []
         if not releases:
             break

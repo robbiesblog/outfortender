@@ -760,8 +760,9 @@ def make(**kw):
     titles = kw.get("titles") or {}
     rec["titles_json"] = json.dumps(titles, ensure_ascii=False, sort_keys=True) if titles else None
     material = "|".join(str(rec.get(f) or "") for f in (
-        "title", "description", "buyer_name", "country", "cpv",
-        "value_amount", "value_currency", "deadline_at", "url"))
+        "title", "titles_json", "description", "description_lang", "title_lang",
+        "buyer_name", "country", "cpv", "value_amount", "value_currency",
+        "deadline_at", "url"))
     rec["content_hash"] = hashlib.sha1(material.encode("utf-8")).hexdigest()[:16]
     return rec
 

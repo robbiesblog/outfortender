@@ -14,8 +14,7 @@ import html
 import re
 import time
 
-import requests
-
+import http_client
 import record
 
 NAME = "worldbank"
@@ -115,19 +114,16 @@ def to_record(row):
 
 
 def fetch(since_days=2, limit=None, log=print):
-    session = requests.Session()
-    session.headers["User-Agent"] = "OutForTender/0.1 (+https://outfortender.com)"
+    session = http_client.session()
 
     cutoff = time.time() - since_days * 86400
     seen = kept = 0
 
     for page in range(MAX_PAGES):
-        response = session.get(ENDPOINT, timeout=60, params={
+        rows = http_client.get_json(session, ENDPOINT, log=log, params={
             "format": "json", "rows": PAGE_SIZE, "os": page * PAGE_SIZE,
             "srt": "noticedate", "order": "desc",
-        })
-        response.raise_for_status()
-        rows = response.json().get("procnotices") or []
+        }).get("procnotices") or []
         if not rows:
             break
         seen += len(rows)

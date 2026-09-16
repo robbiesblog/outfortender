@@ -153,3 +153,13 @@ pre {
 .figures div { padding: 12px 14px; background: var(--paper); border: 1px solid var(--rule); }
 .figures dt { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); }
 .figures dd { margin: 4px 0 0; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* language switcher */
+.langs-nav { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
+.langs-nav a, .langs-nav span {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .04em; padding: 4px 7px;
+  border-radius: 3px; text-decoration: none; color: var(--ink-faint);
+}
+.langs-nav a:hover { background: var(--accent-soft); color: var(--accent); }
+.langs-nav span[aria-current] { background: var(--accent); color: #fff; }
+@media (prefers-color-scheme: dark) { .langs-nav span[aria-current] { color: #10201e; } }

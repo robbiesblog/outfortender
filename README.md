@@ -33,6 +33,25 @@ Heavy work happens on Actions. The server only imports a small delta and serves 
     php ops/import.php --db /tmp/oft.sqlite --delta /tmp/delta.ndjson
     php -S localhost:8080 -t web/            # with OFT_DB=/tmp/oft.sqlite
 
+## Languages
+
+Published in English (at the root) plus German, French, Spanish, Italian, Polish,
+Portuguese and Dutch at `/{lang}/`. Regenerate the reference data with
+`python3 tools/build-i18n.py` after adding a language to its LANGS list.
+
+Genuinely in the reader's language: the interface, category names (the EU's own
+official CPV wording), country names (CLDR), and a tender's title wherever the
+publishing body issued one in that language.
+
+Not translated: the tender's description, which stays in the language the buyer
+wrote it in and is labelled as such. **Nothing on this site is machine-translated.**
+
+A caution worth keeping: TED returns notice titles under all 24 EU language
+codes, but it only translates the "Country - CPV label - " prefix it adds. The
+buyer's own title is left in the original language, so those 24 versions collapse
+to one string once the prefix is stripped. Only CanadaBuys publishes genuinely
+translated titles and descriptions today.
+
 ## Sources
 
 | Source | Covers | Access | Licence |

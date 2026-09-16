@@ -3,6 +3,8 @@ require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
 require __DIR__ . '/lib/cache.php';
 
+oft_set_lang($_GET['lang'] ?? null);
+
 oft_cache_start(900);
 
 $stats = oft_stats();
@@ -12,24 +14,24 @@ $countries = array_slice(oft_countries(), 0, 14);
 $categories = array_slice(oft_categories(), 0, 14);
 
 oft_head(
-    'Out For Tender - free public tenders from around the world',
-    sprintf('%s open public tenders from %d countries, updated hourly. Free to read, no registration.',
-        number_format($stats['open']), $stats['countries'])
+    t('Public tenders from around the world, free to read') . ' - Out For Tender',
+    sprintf('%s %s, %d %s. %s',
+        number_format($stats['open']), t('open tenders'), $stats['countries'], t('Countries'),
+        t('Public tenders from around the world, free to read'))
 );
 ?>
 <section class="hero">
-  <h1>Public tenders from around the world, free to read</h1>
+  <h1><?= e(t('Public tenders from around the world, free to read')) ?></h1>
   <p class="lede">
-    <strong><?= number_format($stats['open']) ?></strong> open tenders from
-    <strong><?= $stats['countries'] ?></strong> countries across
-    <strong><?= $stats['categories'] ?></strong> categories, taken straight from official
-    sources and updated every hour. No paywall, no registration, no sales call.
+    <strong><?= number_format($stats['open']) ?></strong> <?= e(t('open tenders')) ?>,
+    <strong><?= $stats['countries'] ?></strong> <?= e(mb_strtolower(t('Countries'))) ?>,
+    <strong><?= $stats['categories'] ?></strong> <?= e(mb_strtolower(t('Categories'))) ?>.
   </p>
 </section>
 
 <?php if ($closing): ?>
 <section>
-  <h2>Closing soon</h2>
+  <h2><?= e(t('Closing soon')) ?></h2>
   <div class="list">
     <?php foreach ($closing as $t) { oft_card($t); } ?>
   </div>
@@ -37,7 +39,7 @@ oft_head(
 <?php endif; ?>
 
 <section>
-  <h2>Just published</h2>
+  <h2><?= e(t('Just published')) ?></h2>
   <div class="list">
     <?php foreach ($newest as $t) { oft_card($t); } ?>
   </div>
@@ -45,22 +47,22 @@ oft_head(
 
 <section class="browse">
   <div>
-    <h2>By country</h2>
+    <h2><?= e(t('By country')) ?></h2>
     <ul class="facets">
       <?php foreach ($countries as $c): ?>
-      <li><a href="<?= e(oft_country_url($c['country'])) ?>"><?= e($c['country_name'] ?: $c['country']) ?><span><?= number_format($c['n']) ?></span></a></li>
+      <li><a href="<?= e(oft_country_url($c['country'])) ?>"><?= e(oft_country_name($c['country'], $c['country_name'])) ?><span><?= number_format($c['n']) ?></span></a></li>
       <?php endforeach; ?>
     </ul>
-    <p><a href="/countries">All countries &rarr;</a></p>
+    <p><a href="<?= e(oft_path('/countries')) ?>"><?= e(t('All countries')) ?> &rarr;</a></p>
   </div>
   <div>
-    <h2>By category</h2>
+    <h2><?= e(t('By category')) ?></h2>
     <ul class="facets">
       <?php foreach ($categories as $c): ?>
-      <li><a href="<?= e(oft_category_url($c['cpv_division'])) ?>"><?= e($c['category'] ?: $c['cpv_division']) ?><span><?= number_format($c['n']) ?></span></a></li>
+      <li><a href="<?= e(oft_category_url($c['cpv_division'])) ?>"><?= e(oft_category_name($c['cpv_division'], $c['category'])) ?><span><?= number_format($c['n']) ?></span></a></li>
       <?php endforeach; ?>
     </ul>
-    <p><a href="/categories">All categories &rarr;</a></p>
+    <p><a href="<?= e(oft_path('/categories')) ?>"><?= e(t('All categories')) ?> &rarr;</a></p>
   </div>
 </section>
 <?php oft_foot(); oft_cache_end(); ?>

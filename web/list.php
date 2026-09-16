@@ -3,6 +3,8 @@
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/render.php';
 require __DIR__ . '/lib/cache.php';
+
+oft_set_lang($_GET['lang'] ?? null);
 require __DIR__ . '/lib/guides.php';
 
 if (($_GET['mode'] ?? '') !== 'search') {
@@ -25,12 +27,12 @@ if ($mode === 'country') {
         oft_foot();
         exit;
     }
-    $name = $row['country_name'] ?: $code;
+    $name = oft_country_name($code, $row['country_name'] ?: $code);
     $filter['country'] = $code;
-    $heading = "Public tenders in $name";
+    $heading = t('Public tenders in %s', $name);
     $intro = "Open tenders published by public buyers in $name, updated hourly from official sources.";
     $base = oft_country_url($code);
-    $title = "$name public tenders - open contract opportunities";
+    $title = t('Public tenders in %s', $name) . ' - Out For Tender';
 } elseif ($mode === 'category') {
     $division = preg_replace('/[^0-9]/', '', (string) ($_GET['d'] ?? ''));
     $row = oft_one('SELECT category FROM tenders WHERE cpv_division = :d LIMIT 1', [':d' => $division]);
@@ -41,12 +43,12 @@ if ($mode === 'country') {
         oft_foot();
         exit;
     }
-    $name = $row['category'];
+    $name = oft_category_name($division, $row['category']);
     $filter['division'] = $division;
     $heading = $name;
     $intro = "Open public tenders for $name from every country we cover, updated hourly.";
     $base = oft_category_url($division);
-    $title = "$name - public tenders and contract opportunities";
+    $title = $name . ' - ' . t('open tenders');
 } else {
     $q = trim((string) ($_GET['q'] ?? ''));
     $filter['q'] = $q;
@@ -64,7 +66,7 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
 <section class="hero compact">
   <h1><?= e($heading) ?></h1>
   <?php if ($intro): ?><p class="lede"><?= e($intro) ?></p><?php endif; ?>
-  <p class="count"><?= number_format($total) ?> open <?= $total === 1 ? 'tender' : 'tenders' ?></p>
+  <p class="count"><?= number_format($total) ?> <?= e($total === 1 ? t('open tender') : t('open tenders')) ?></p>
 </section>
 
 <?php if ($mode === 'search'): ?>
@@ -75,11 +77,11 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
 <?php endif; ?>
 
 <?php if ($mode === 'country'):
-    $guide = oft_guide($code);
+    $guide = oft_lang() === 'en' ? oft_guide($code) : null;
     $stats = oft_country_stats($code);
 ?>
 <section class="guide">
-  <h2>How public tendering works in <?= e($name) ?></h2>
+  <h2><?= e(t('How public tendering works in %s', $name)) ?></h2>
   <?php if ($guide): ?>
   <p class="lede"><?= e($guide['intro']) ?></p>
   <ul>
@@ -87,30 +89,30 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
   </ul>
   <?php else: ?>
   <p class="lede">
-    Tenders for <?= e($name) ?> reach us through
     <?php $labels = array_map(fn($s) => oft_source_label($s['source']), $stats['sources']); ?>
-    <?= e(implode(' and ', $labels)) ?>.
-    Each listing links to the official notice, which is where bidding happens and
-    which is always the authoritative version.
+    <?= e(t('Tenders for %s reach us through %s.', $name, implode(', ', $labels))) ?>
+    <?= e(t('Each listing links to the official notice, which is where bidding happens and which is always the authoritative version.')) ?>
   </p>
   <?php endif; ?>
 
   <dl class="figures">
-    <div><dt>Open now</dt><dd><?= number_format($stats['open']) ?></dd></div>
-    <div><dt>Closing this week</dt><dd><?= number_format($stats['closing_this_week']) ?></dd></div>
+    <div><dt><?= e(t('Open now')) ?></dt><dd><?= number_format($stats['open']) ?></dd></div>
+    <div><dt><?= e(t('Closing this week')) ?></dt><dd><?= number_format($stats['closing_this_week']) ?></dd></div>
     <?php if ($stats['median_lead_days'] !== null): ?>
-    <div><dt>Typical time to bid</dt><dd><?= (int) $stats['median_lead_days'] ?> days</dd></div>
+    <div><dt><?= e(t('Typical time to bid')) ?></dt><dd><?= e(t('%d days', (int) $stats['median_lead_days'])) ?></dd></div>
     <?php endif; ?>
-    <div><dt>With a published value</dt><dd><?= $stats['open'] ? round(100 * $stats['with_value'] / $stats['open']) : 0 ?>%</dd></div>
+    <div><dt><?= e(t('With a published value')) ?></dt><dd><?= $stats['open'] ? round(100 * $stats['with_value'] / $stats['open']) : 0 ?>%</dd></div>
   </dl>
+  <?php if (oft_lang() === 'en'): ?>
   <p class="muted">
     Figures are counted from the <?= number_format($stats['open']) ?> open
     <?= e($name) ?> tenders we hold right now, and change as notices are published and close.
     "Typical time to bid" is the median gap between publication and deadline.
   </p>
+  <?php endif; ?>
 
   <?php if ($stats['categories']): ?>
-  <p><strong>Most common right now:</strong>
+  <p><strong><?= e(t('Most common right now')) ?>:</strong>
     <?php $bits = [];
       foreach ($stats['categories'] as $c) {
           $bits[] = '<a href="' . e(oft_category_url($c['cpv_division'])) . '">' . e($c['category']) . '</a> (' . number_format($c['n']) . ')';
@@ -119,12 +121,12 @@ oft_head($title, $intro ?: $heading, ['noindex' => $noindex, 'canonical' => OFT_
   </p>
   <?php endif; ?>
   <?php if ($stats['buyers']): ?>
-  <p><strong>Buyers publishing most often:</strong>
+  <p><strong><?= e(t('Buyers publishing most often')) ?>:</strong>
     <?= e(implode(', ', array_map(fn($b) => $b['buyer_name'], $stats['buyers']))) ?>.
   </p>
   <?php endif; ?>
 </section>
-<h2>Open tenders in <?= e($name) ?></h2>
+<h2><?= e(t('Public tenders in %s', $name)) ?></h2>
 <?php endif; ?>
 
 <div class="list">
