@@ -23,7 +23,12 @@ rsync -az $DRY -e "$SSH" \
   --exclude '.DS_Store' \
   "$HERE/ops/" "$HOST:ops/"
 
+echo "==> ingest/ -> ~/ingest/"
+rsync -az --delete $DRY -e "$SSH" \
+  --exclude '__pycache__' --exclude '.DS_Store' \
+  "$HERE/ingest/" "$HOST:ingest/"
+
 if [[ -z "$DRY" ]]; then
-  $SSH "$HOST" 'mkdir -p ~/incoming ~/data && chmod 755 ~/data'
+  $SSH "$HOST" 'mkdir -p ~/incoming ~/data ~/ops/log && chmod 755 ~/data'
   echo "==> deployed"
 fi

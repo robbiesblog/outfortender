@@ -5,6 +5,15 @@ we can reach through open data.
 
 ## How it runs
 
+**Hourly, on DreamHost's own cron** (`ops/fetch.sh`): fetch every source, write
+the delta, import it. SAM.gov runs separately twice a day because its extract is
+225 MB and changes daily. GitHub Actions still runs the same code every six hours
+as a backup - it was the primary until measurement showed GitHub skipping most
+"hourly" schedules (one run every ~4 hours). Both paths feed the same idempotent,
+locked importer, so overlap costs nothing.
+
+The original design, kept below for the Actions path:
+
     GitHub Actions (hourly)          DreamHost (shared)
     ─────────────────────            ──────────────────
     ingest/run.py                    ops/import.php   (cron, every hour)

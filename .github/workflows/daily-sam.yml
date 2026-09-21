@@ -2,9 +2,8 @@ name: Daily SAM.gov ingest
 
 on:
   schedule:
-    # SAM.gov regenerates its extract once a day. Twice a day gives a second
-    # chance when GitHub skips a scheduled run, which it does often.
-    - cron: '41 9,21 * * *'
+    # Backup only: the server fetches SAM.gov twice a day (ops/fetch.sh sam).
+    - cron: '41 13 * * *'
   workflow_dispatch:
     inputs:
       since_days:

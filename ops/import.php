@@ -17,6 +17,13 @@ $db       = $options['db']       ?? $home . '/data/outfortender.sqlite';
 $incoming = $options['incoming'] ?? $home . '/incoming';
 $schema   = $options['schema']   ?? __DIR__ . '/schema.sql';
 
+// The importer is called by the hourly fetch, the SAM fetch, the GitHub backup
+// and its own cron. Two at once would race over the same files, so they queue.
+$lock = fopen(($home) . '/ops/log/import.lock', 'c');
+if ($lock) {
+    flock($lock, LOCK_EX);
+}
+
 $files = isset($options['delta'])
     ? [$options['delta']]
     : glob(rtrim($incoming, '/') . '/*.ndjson');

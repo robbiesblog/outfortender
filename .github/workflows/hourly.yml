@@ -1,8 +1,12 @@
-name: Hourly tender ingest
+name: Backup tender ingest
 
 on:
   schedule:
-    - cron: '17 * * * *'      # 17 past the hour: away from the crowd on :00
+    # The real hourly fetch runs on DreamHost's cron (ops/fetch.sh), because
+    # GitHub skips scheduled runs under load - "hourly" here measured one run
+    # every ~4 hours. This is now a backup that catches anything the server
+    # misses; the importer is idempotent, so overlap is harmless.
+    - cron: '17 */6 * * *'
   workflow_dispatch:
     inputs:
       since_days:
