@@ -2,8 +2,8 @@ name: Daily SAM.gov ingest
 
 on:
   schedule:
-    # Twice a day until the server cron is confirmed running.
-    - cron: '41 9,21 * * *'
+    # Backup only: the DreamHost panel job fetches SAM.gov every four hours.
+    - cron: '41 13 * * *'
   workflow_dispatch:
     inputs:
       since_days:

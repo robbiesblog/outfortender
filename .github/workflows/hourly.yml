@@ -1,11 +1,13 @@
-name: Hourly tender ingest
+name: Backup tender ingest
 
 on:
   schedule:
-    # Back to hourly while DreamHost's cron is not firing (verified 2026-09-21:
-    # a once-a-minute test job produced nothing in ten minutes). When the
-    # server cron is confirmed running, this can drop back to every six hours.
-    - cron: '17 * * * *'
+    # Backup only. The real hourly fetch is ops/fetch.sh on DreamHost, run by a
+    # job in the DreamHost panel - on this server, only panel jobs execute;
+    # lines added with `crontab` over SSH are silently ignored. GitHub also
+    # skips scheduled runs under load (measured: one "hourly" run every ~4h),
+    # so it is a safety net, not the schedule.
+    - cron: '17 */6 * * *'
   workflow_dispatch:
     inputs:
       since_days:

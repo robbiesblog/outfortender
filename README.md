@@ -5,7 +5,11 @@ we can reach through open data.
 
 ## How it runs
 
-**Hourly, on DreamHost's own cron** (`ops/fetch.sh`): fetch every source, write
+**Hourly, on DreamHost's own cron** (`ops/fetch.sh`), scheduled from the
+**DreamHost panel** (Advanced -> Cron Jobs). On this server only the jobs in the
+panel-managed block of the crontab run; anything added with `crontab` over SSH
+is silently ignored, which cost an afternoon to establish. Add or change
+scheduled jobs in the panel, never over SSH. fetch every source, write
 the delta, import it. SAM.gov runs separately twice a day because its extract is
 225 MB and changes daily. GitHub Actions still runs the same code every six hours
 as a backup - it was the primary until measurement showed GitHub skipping most
