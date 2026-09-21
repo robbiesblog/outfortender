@@ -2,8 +2,8 @@ name: Daily SAM.gov ingest
 
 on:
   schedule:
-    # Backup only: the server fetches SAM.gov twice a day (ops/fetch.sh sam).
-    - cron: '41 13 * * *'
+    # Twice a day until the server cron is confirmed running.
+    - cron: '41 9,21 * * *'
   workflow_dispatch:
     inputs:
       since_days:
