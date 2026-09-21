@@ -101,8 +101,8 @@ function oft_tenders(array $filter = [], int $limit = 50, int $offset = 0): arra
         }
     }
     if (!empty($filter['closing_within_days'])) {
-        $where[] = 'deadline_at IS NOT NULL AND deadline_at <= :until';
-        $params[':until'] = gmdate('c', time() + 86400 * (int) $filter['closing_within_days']);
+        $where[] = 'deadline_utc IS NOT NULL AND deadline_utc <= :until';
+        $params[':until'] = gmdate('Y-m-d H:i:s', time() + 86400 * (int) $filter['closing_within_days']);
     }
 
     $clause = implode(' AND ', $where);
@@ -110,7 +110,7 @@ function oft_tenders(array $filter = [], int $limit = 50, int $offset = 0): arra
 
     $order = ($filter['order'] ?? 'deadline') === 'published'
         ? 'published_at DESC, id DESC'
-        : 'CASE WHEN deadline_at IS NULL THEN 1 ELSE 0 END, deadline_at ASC';
+        : 'CASE WHEN deadline_utc IS NULL THEN 1 ELSE 0 END, deadline_utc ASC';
 
     $rows = oft_query(
         "SELECT * FROM tenders WHERE $clause ORDER BY $order LIMIT $limit OFFSET $offset",

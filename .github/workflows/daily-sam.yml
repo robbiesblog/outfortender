@@ -1,16 +1,18 @@
-name: Hourly tender ingest
+name: Daily SAM.gov ingest
 
 on:
   schedule:
-    - cron: '17 * * * *'      # 17 past the hour: away from the crowd on :00
+    # SAM.gov regenerates its extract once a day. Twice a day gives a second
+    # chance when GitHub skips a scheduled run, which it does often.
+    - cron: '41 9,21 * * *'
   workflow_dispatch:
     inputs:
       since_days:
         description: 'How many days back to fetch'
-        default: '2'
+        default: '3'
 
 concurrency:
-  group: ingest
+  group: ingest-sam
   cancel-in-progress: false
 
 jobs:
@@ -32,8 +34,8 @@ jobs:
         run: |
           set +e
           python3 ingest/run.py \
-            --since-days "${{ github.event.inputs.since_days || 2 }}" \
-            --skip sam \
+            --since-days "${{ github.event.inputs.since_days || 3 }}" \
+            --only sam \
             --out delta.ndjson
           code=$?
           # 2 means some sources failed but we still have tenders worth importing.

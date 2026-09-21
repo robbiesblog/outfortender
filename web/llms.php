@@ -54,6 +54,9 @@ Quoting and summarising is welcome, no permission needed. Two requests:
 - Contracts Finder (UK) - below-threshold UK tenders, Open Government Licence v3.0
 - World Bank procurement notices - bank-funded work in ~150 countries, CC BY 4.0
 - CanadaBuys - Canadian federal and provincial tenders, Open Government Licence - Canada
+- BOAMP (France) - national notices below the EU thresholds, Licence Ouverte
+- SECOP II (Colombia) - national procurement platform
+- SAM.gov (United States) - federal contract opportunities, public domain
 
 Each record's "source" field names its origin, and "official_notice" links to the
 original. More sources are being added continuously.

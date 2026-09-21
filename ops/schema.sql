@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS tenders (
     procedure        TEXT,
     contract_nature  TEXT,
     published_at     TEXT,                  -- ISO date
-    deadline_at      TEXT,                  -- ISO datetime with offset
+    deadline_at      TEXT,                  -- ISO datetime with offset, as published
+    deadline_utc     TEXT,                  -- the same moment in UTC: compare THIS, never deadline_at
     status           TEXT NOT NULL DEFAULT 'open',   -- open | closed
     content_hash     TEXT,
     first_seen_at    TEXT NOT NULL,
@@ -34,9 +35,9 @@ CREATE TABLE IF NOT EXISTS tenders (
     updated_at       TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS ix_open_deadline  ON tenders (status, deadline_at);
-CREATE INDEX IF NOT EXISTS ix_country        ON tenders (country, status, deadline_at);
-CREATE INDEX IF NOT EXISTS ix_division       ON tenders (cpv_division, status, deadline_at);
+CREATE INDEX IF NOT EXISTS ix_open_deadline  ON tenders (status, deadline_utc);
+CREATE INDEX IF NOT EXISTS ix_country        ON tenders (country, status, deadline_utc);
+CREATE INDEX IF NOT EXISTS ix_division       ON tenders (cpv_division, status, deadline_utc);
 CREATE INDEX IF NOT EXISTS ix_published      ON tenders (published_at DESC);
 CREATE INDEX IF NOT EXISTS ix_source         ON tenders (source, source_ref);
 

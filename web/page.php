@@ -43,7 +43,7 @@ oft_head($titles[$which] . ' - Out For Tender', match ($which) {
   <p>This site does the opposite. Every tender we hold is readable without an account, quotable by anyone including language models, and available as JSON through a <a href="/api">free API</a>.</p>
 
   <h2>Where the data comes from</h2>
-  <p>We take tenders only from official open-data sources: the European Union's TED, the UK's Find a Tender and Contracts Finder, the World Bank, CanadaBuys, France's BOAMP and Colombia's SECOP II. We add more as we find sources that publish openly and under a licence we can honour. Every listing links back to the official notice.</p>
+  <p>We take tenders only from official open-data sources: the European Union's TED, the UK's Find a Tender and Contracts Finder, the World Bank, CanadaBuys, France's BOAMP, Colombia's SECOP II and the US government's SAM.gov. We add more as we find sources that publish openly and under a licence we can honour. Every listing links back to the official notice.</p>
   <p>We currently hold <?= number_format($stats['open']) ?> open tenders from <?= $stats['countries'] ?> countries.</p>
 
   <h2>What this site is not</h2>

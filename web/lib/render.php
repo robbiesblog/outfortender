@@ -179,7 +179,8 @@ function oft_foot(): void
     World Bank procurement notices, &copy; The World Bank, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> &middot;
     Canadian data from CanadaBuys under the Open Government Licence &ndash; Canada &middot;
     French national notices from BOAMP under the Licence Ouverte (Etalab) &middot;
-    Colombian data from SECOP II via datos.gov.co.
+    Colombian data from SECOP II via datos.gov.co &middot;
+    US federal opportunities from SAM.gov's public Contract Opportunities extract (US Government work, public domain).
     Out For Tender is not affiliated with any of these bodies.
   </p>
   <?php if (!empty($stats['last_import'])): ?>

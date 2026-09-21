@@ -119,7 +119,7 @@ foreach ($due->fetchAll() as $row) {
     $matches = $pdo->prepare(
         'SELECT id, title, buyer_name, country_name, category, deadline_at
            FROM tenders WHERE ' . implode(' AND ', $where) . '
-          ORDER BY CASE WHEN deadline_at IS NULL THEN 1 ELSE 0 END, deadline_at
+          ORDER BY CASE WHEN deadline_utc IS NULL THEN 1 ELSE 0 END, deadline_utc
           LIMIT ' . MAX_TENDERS_PER_EMAIL);
     $matches->execute($params);
     $tenders = $matches->fetchAll();

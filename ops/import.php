@@ -119,14 +119,31 @@ foreach ($files as $file) {
     }
 }
 
+// Deadlines arrive with their own offsets ("09:00-06:00", "14:00+02:00"), so as
+// text they do not sort or compare as moments in time. SQLite's datetime()
+// converts them to UTC; everything that compares deadlines uses that column.
+$pdo->exec(
+    "UPDATE tenders SET deadline_utc = datetime(deadline_at)
+      WHERE deadline_at IS NOT NULL
+        AND (deadline_utc IS NULL OR deadline_utc IS NOT datetime(deadline_at))"
+);
+
 // A tender whose deadline has passed is closed, not deleted: the page stays as a
 // permanent record, and Phase 4 links it to the award on ContractAwarded.com.
 $close = $pdo->prepare(
     "UPDATE tenders SET status = 'closed', updated_at = :now
-      WHERE status = 'open' AND deadline_at IS NOT NULL AND deadline_at < :cutoff"
+      WHERE status = 'open' AND deadline_utc IS NOT NULL AND deadline_utc < datetime('now')"
 );
-$close->execute([':now' => $now, ':cutoff' => gmdate('c')]);
+$close->execute([':now' => $now]);
 $closed = $close->rowCount();
+
+// And the reverse: a buyer who extends a deadline reopens the tender.
+$reopen = $pdo->prepare(
+    "UPDATE tenders SET status = 'open', updated_at = :now
+      WHERE status = 'closed' AND deadline_utc IS NOT NULL AND deadline_utc > datetime('now')"
+);
+$reopen->execute([':now' => $now]);
+$reopened = $reopen->rowCount();
 
 $pdo->prepare(
     'INSERT INTO imports (ran_at, delta_file, inserted, updated, unchanged, closed, skipped, manifest)
@@ -156,7 +173,7 @@ $open = $pdo->query("SELECT COUNT(*) FROM tenders WHERE status = 'open'")->fetch
 $all  = $pdo->query('SELECT COUNT(*) FROM tenders')->fetchColumn();
 
 printf(
-    "imported %d file(s): +%d new, %d updated, %d unchanged, %d closed, %d skipped | %d open of %d total | %d stale pages swept\n",
+    "imported %d file(s): +%d new, %d updated, %d unchanged, %d closed, %d reopened, %d skipped | %d open of %d total | %d stale pages swept\n",
     count($files), $totals['inserted'], $totals['updated'], $totals['unchanged'],
-    $closed, $totals['skipped'], $open, $all, $swept
+    $closed, $reopened, $totals['skipped'], $open, $all, $swept
 );

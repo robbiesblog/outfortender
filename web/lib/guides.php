@@ -60,6 +60,15 @@ function oft_guide(string $code): ?array
                 'Some notices are hosted on MERX rather than CanadaBuys; the link on each page goes wherever the official notice actually lives.',
             ],
         ],
+        'US' => [
+            'intro' => 'The United States federal government is the largest single buyer in the world, and every federal opportunity worth more than $25,000 is advertised through one system.',
+            'notes' => [
+                'Our US listings come from SAM.gov\'s public Contract Opportunities extract, which the government republishes daily. We refresh it twice a day.',
+                'We list solicitations, presolicitations and sources-sought notices that still have a response deadline. Many are set aside for small, veteran-owned or disadvantaged businesses - the set-aside is shown on each tender.',
+                'To bid you need a SAM.gov registration and a Unique Entity ID, which is free but takes time to obtain. Register before a deadline depends on it.',
+                'This covers federal buying only. The fifty states and thousands of local governments each run their own procurement, which we do not yet cover.',
+            ],
+        ],
         'CO' => [
             'intro' => 'Colombia publishes every stage of every public procurement process to a single national platform, which makes it one of the more transparent markets we cover.',
             'notes' => [
@@ -119,8 +128,8 @@ function oft_country_stats(string $code): array
 
     $closingWeek = (int) oft_value(
         "SELECT COUNT(*) FROM tenders WHERE status = 'open' AND country = :c
-           AND deadline_at IS NOT NULL AND deadline_at <= :until",
-        $bind + [':until' => gmdate('c', time() + 7 * 86400)]);
+           AND deadline_utc IS NOT NULL AND deadline_utc <= :until",
+        $bind + [':until' => gmdate('Y-m-d H:i:s', time() + 7 * 86400)]);
 
     return [
         'open' => $open,
@@ -152,5 +161,6 @@ function oft_source_label(string $source): string
         'canadabuys' => 'CanadaBuys, the Canadian federal register',
         'boamp' => 'BOAMP, the French national bulletin',
         'secop' => 'SECOP II, Colombia\'s public procurement platform',
+        'sam' => 'SAM.gov, the US federal contracting system',
     ][$source] ?? $source;
 }

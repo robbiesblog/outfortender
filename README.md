@@ -33,6 +33,15 @@ Heavy work happens on Actions. The server only imports a small delta and serves 
     php ops/import.php --db /tmp/oft.sqlite --delta /tmp/delta.ndjson
     php -S localhost:8080 -t web/            # with OFT_DB=/tmp/oft.sqlite
 
+## SAM.gov is read from the bulk extract, not the API
+
+The API needs a key registered to a named person. The Contract Opportunities
+extract on SAM.gov's Data Services page does not: it is one public CSV of every
+active notice (~225 MB), regenerated daily, served via a signed S3 redirect.
+Because it changes once a day it has its own workflow, `daily-sam.yml`, twice a
+day, and the hourly job passes `--skip sam` rather than downloading 225 MB every
+hour to find the same file.
+
 ## Alerts
 
 Free email alerts at `/alerts`: filter by country, category and keywords.
@@ -79,6 +88,7 @@ translated titles and descriptions today.
 | CanadaBuys | Canada, federal + provincial | open CSV | OGL - Canada |
 | BOAMP | France, below EU threshold | open API | Licence Ouverte (Etalab) |
 | SECOP II | Colombia, national platform | open API (Socrata) | Datos Abiertos Colombia |
+| SAM.gov | US federal | public bulk CSV, no key | public domain |
 
 Categories: Canada and Colombia classify with UNSPSC, which `ingest/unspsc.py`
 bridges to CPV divisions at segment level. The World Bank publishes no product
@@ -89,7 +99,6 @@ Sources probed and NOT built, with the reason:
 
 | Source | Why not |
 |---|---|
-| SAM.gov (US) | needs a free API key registered to a person; ask Robbie |
 | Brazil PNCP | API returned HTTP 500 "Erro na comunicacao com o banco de dados" all day |
 | Ukraine Prozorro | the search API carries no deadline or CPV, and the detail API is one request per tender - thousands a day |
 | AusTender (AU) | requires an authentication token |

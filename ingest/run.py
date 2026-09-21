@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import record  # noqa: E402
 from sources import (boamp, canadabuys, contracts_finder, find_a_tender,  # noqa: E402
-                     secop, ted, worldbank)
+                     sam, secop, ted, worldbank)
 
 SOURCES = {
     "ted": ted,                          # EU, above threshold
@@ -29,6 +29,7 @@ SOURCES = {
     "canadabuys": canadabuys,            # Canada federal and provincial
     "boamp": boamp,                      # France, below EU threshold
     "secop": secop,                      # Colombia, national platform
+    "sam": sam,                          # United States federal (daily extract)
 }
 
 
@@ -38,10 +39,13 @@ def main():
                         help="how far back to look (default 2; overlap is deliberate)")
     parser.add_argument("--out", default="delta.ndjson", help="output file")
     parser.add_argument("--only", help="comma-separated source names")
+    parser.add_argument("--skip", help="comma-separated source names to leave out")
     parser.add_argument("--limit", type=int, help="stop after this many records per source")
     args = parser.parse_args()
 
     wanted = args.only.split(",") if args.only else list(SOURCES)
+    if args.skip:
+        wanted = [name for name in wanted if name not in args.skip.split(",")]
     started = dt.datetime.now(dt.timezone.utc)
     counts, dropped, failures = {}, {}, {}
 
