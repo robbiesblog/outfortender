@@ -45,6 +45,24 @@ else
 fi
 
 php "$HOME/ops/import.php" >> "$LOG" 2>&1
+
+# Each import changes the cache key, so every page's next visitor would pay for
+# a fresh build. Pay it here instead, for the pages most people land on: the
+# homepage in every language, the index pages and the busiest countries.
+warm() {
+    SITE="https://outfortender.com"
+    PAGES="/ /de/ /fr/ /es/ /it/ /pl/ /pt/ /nl/ /countries /categories"
+    TOP=$(sqlite3 "$HOME/data/outfortender.sqlite" \
+        "SELECT lower(country) FROM tenders WHERE status='open' GROUP BY country ORDER BY COUNT(*) DESC LIMIT 12;" 2>/dev/null)
+    for c in $TOP; do PAGES="$PAGES /country/$c"; done
+    START=$(date +%s); N=0
+    for p in $PAGES; do
+        curl -s -o /dev/null -m 30 -A "OutForTender-cache-warmer" "$SITE$p" && N=$((N + 1))
+    done
+    echo "$(stamp) warmed $N pages in $(( $(date +%s) - START ))s" >> "$LOG"
+}
+warm
+
 case "$CODE" in
     0) echo "$(stamp) $MODE: done" >> "$LOG" ;;
     2) echo "$(stamp) $MODE: done, BUT SOME SOURCES FAILED - see above" >> "$LOG" ;;

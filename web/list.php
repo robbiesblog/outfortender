@@ -8,7 +8,7 @@ oft_set_lang($_GET['lang'] ?? null);
 require __DIR__ . '/lib/guides.php';
 
 if (($_GET['mode'] ?? '') !== 'search') {
-    oft_cache_start(900);
+    oft_cache_start(3600);   // the importer changes the key; the TTL is only a backstop
 }
 
 $perPage = 25;

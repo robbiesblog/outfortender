@@ -39,6 +39,16 @@ CREATE INDEX IF NOT EXISTS ix_open_deadline  ON tenders (status, deadline_utc);
 CREATE INDEX IF NOT EXISTS ix_country        ON tenders (country, status, deadline_utc);
 CREATE INDEX IF NOT EXISTS ix_division       ON tenders (cpv_division, status, deadline_utc);
 CREATE INDEX IF NOT EXISTS ix_published      ON tenders (published_at DESC);
+
+-- Covering indexes for the browse pages. Rows carry descriptions of up to 4 KB,
+-- so any query that has to visit the row to count or group is slow; these hold
+-- every column those queries touch, so they never do.
+CREATE INDEX IF NOT EXISTS ix_open_published ON tenders (status, published_at DESC, id);
+-- Wide on purpose: this one index answers the country list AND every live
+-- figure on a country page (counts, median time-to-bid, top categories, top
+-- buyers, sources) without touching a row.
+CREATE INDEX IF NOT EXISTS ix_open_country   ON tenders (status, country, deadline_utc, country_name, cpv_division, category, source, value_amount, published_at, deadline_at, buyer_name);
+CREATE INDEX IF NOT EXISTS ix_open_division  ON tenders (status, cpv_division, category);
 CREATE INDEX IF NOT EXISTS ix_source         ON tenders (source, source_ref);
 
 -- Full-text search. SQLite's FTS5 is compiled into DreamHost's PHP, so search

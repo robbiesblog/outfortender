@@ -5,7 +5,7 @@ require __DIR__ . '/lib/cache.php';
 
 oft_set_lang($_GET['lang'] ?? null);
 
-oft_cache_start(900);
+oft_cache_start(3600);   // the importer changes the key; the TTL is only a backstop
 
 $stats = oft_stats();
 [$closing, ] = oft_tenders(['closing_within_days' => 14], 12);
