@@ -36,6 +36,12 @@ PACE_SECONDS = 0.5
 # The phase in which a supplier can still put in an offer.
 OPEN_PHASE = "Presentación de oferta"
 
+# datos.gov.co republishes SECOP with a lag of two to three days, so a row
+# published on Monday often appears on Thursday. The hourly job's default two-day
+# window would miss nearly all of it - in the first five days live it caught 8
+# of ~800. Overlap is free, because the importer is idempotent.
+MIN_SINCE_DAYS = 10
+
 # Modalities where the "process" is a negotiated award, not a call for bids.
 CLOSED_MODALITIES = ("Contratación directa", "Contratación régimen especial")
 

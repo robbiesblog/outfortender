@@ -54,7 +54,9 @@ def main():
             print(f"- {name}: fetching")
             kept = bad = 0
             try:
-                for item in module.fetch(since_days=args.since_days, limit=args.limit):
+                # Some sources publish late; they set a floor on the window.
+                window = max(args.since_days, getattr(module, "MIN_SINCE_DAYS", 0))
+                for item in module.fetch(since_days=window, limit=args.limit):
                     problems = record.validate(item)
                     if problems:
                         bad += 1

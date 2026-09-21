@@ -183,7 +183,7 @@ function oft_foot(): void
     Out For Tender is not affiliated with any of these bodies.
   </p>
   <?php if (!empty($stats['last_import'])): ?>
-  <p class="credits">Last updated <?= e(date('j M Y H:i', strtotime($stats['last_import']))) ?> UTC.</p>
+  <p class="credits">Last updated <?= e(gmdate('j M Y H:i', strtotime($stats['last_import']))) ?> UTC.</p>
   <?php endif; ?>
   <nav class="footnav">
     <a href="<?= e(oft_path('/')) ?>"><?= e(t('Home')) ?></a> &middot;
