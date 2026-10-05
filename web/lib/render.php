@@ -170,6 +170,17 @@ function oft_foot(): void
     $stats = function_exists('oft_stats') ? oft_stats() : [];
     ?>
 </main>
+<script>
+// Counts the view. Crawlers do not run this, which is the point: it is the only
+// honest way to tell a reader from a scraper wearing a browser's user agent.
+(function () {
+  try {
+    var u = '/b?p=' + encodeURIComponent(location.pathname) +
+            '&r=' + encodeURIComponent(document.referrer || '');
+    if (navigator.sendBeacon) { navigator.sendBeacon(u); } else { (new Image()).src = u; }
+  } catch (e) {}
+})();
+</script>
 <footer class="site">
   <p class="lede">Out For Tender lists public tenders from official open-data sources worldwide. Free to read, updated hourly, no registration.</p>
   <p>Always check the official notice before bidding &mdash; every tender page links to it.</p>

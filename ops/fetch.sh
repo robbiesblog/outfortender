@@ -63,6 +63,12 @@ warm() {
 }
 warm
 
+# Summarise the access logs while we are here: it reads today's log afresh each
+# time, so it is always current without any state to go wrong.
+if [ "$MODE" = hourly ]; then
+    python3 "$HOME/ops/analytics.py" >> "$LOG" 2>&1 || echo "$(stamp) analytics failed" >> "$LOG"
+fi
+
 case "$CODE" in
     0) echo "$(stamp) $MODE: done" >> "$LOG" ;;
     2) echo "$(stamp) $MODE: done, BUT SOME SOURCES FAILED - see above" >> "$LOG" ;;

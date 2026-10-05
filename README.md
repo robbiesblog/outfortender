@@ -55,6 +55,30 @@ Because it changes once a day it has its own workflow, `daily-sam.yml`, twice a
 day, and the hourly job passes `--skip sam` rather than downloading 225 MB every
 hour to find the same file.
 
+## Traffic portal
+
+`https://outfortender.com/analytics/`, behind HTTP basic auth (`~/ops/.htpasswd`;
+the plaintext password is in `~/ops/analytics-password.txt`, mode 600). Two
+sources, deliberately never mixed:
+
+- **people** - `web/b.php`, a beacon the page calls from JavaScript. Crawlers do
+  not run JavaScript, so this is the only honest count of readers. No cookies,
+  no identifiers, no IP stored: the address is used to look up a country and
+  then discarded.
+- **everything else** - `ops/analytics.py` reads the server's access logs each
+  hour and counts crawlers by name, including the AI ones.
+
+Why not just count log hits: on 4-5 Oct 2026, 19,395 requests arrived carrying a
+google.com referrer and only 18 came from an address that had ever loaded the
+stylesheet - one scraper farm spoofing referrers. Counting "visits with a search
+referrer" would have reported 19,000 arrivals from Google where there were
+almost none. The portal shows three buckets - people, browser-like but
+unverified, and declared bots - and never blurs them.
+
+The log-based "people" estimate undercounts on purpose-built caching: the
+stylesheet is cached for 30 days, so a returning reader never re-fetches it and
+falls into "unverified". That is why the beacon exists.
+
 ## Alerts
 
 Free email alerts at `/alerts`: filter by country, category and keywords.

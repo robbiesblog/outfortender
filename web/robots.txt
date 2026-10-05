@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /search
+Disallow: /analytics
+Disallow: /b
 
 # AI crawlers are welcome. Being quotable is the point.
 User-agent: GPTBot

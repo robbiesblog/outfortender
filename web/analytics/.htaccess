@@ -1,0 +1,8 @@
+# The traffic portal is private.
+AuthType Basic
+AuthName "Out For Tender traffic"
+AuthUserFile /home/dh_pmtbvy/ops/.htpasswd
+Require valid-user
+
+# Never let a crawler index it, even if the password were ever removed.
+Header always set X-Robots-Tag "noindex, nofollow, noarchive"

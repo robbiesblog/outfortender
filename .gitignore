@@ -4,3 +4,4 @@ __pycache__/
 *.ndjson
 .DS_Store
 .env
+.portal-preview.html
